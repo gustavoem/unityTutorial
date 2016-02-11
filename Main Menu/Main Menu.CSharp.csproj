@@ -63,7 +63,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\QuitGame.cs" />
+    <Compile Include="Assets\MainMenuScene\Scripts\QuitGame.cs" />
+    <Compile Include="Assets\MainMenuScene\Scripts\StartGame.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
