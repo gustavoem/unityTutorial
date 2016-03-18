@@ -30,10 +30,13 @@ public class FacebookManager : MonoBehaviour {
 
 
     // Stores if FB is logged in or not. Should be the same as FB.IsLoggedIn
-    public bool IsLoggedIn {
-        get;
-        set;
-    }
+    public bool IsLoggedIn { get; set; }
+
+    // Stores the user name
+    public string UserName { get; set; }
+
+    // Stores the user profile picture
+    public Sprite UserPicture { get; set; }
 
 
     // Code run when starting the script component
@@ -61,7 +64,10 @@ public class FacebookManager : MonoBehaviour {
     {
         Debug.Log ("Started FB init");
         if (FB.IsLoggedIn)
+        {
             Debug.Log ("They already logged in");
+            FetchUserProfile ();
+        }
         else
             Debug.Log ("They haven't logged in");
 
@@ -79,5 +85,46 @@ public class FacebookManager : MonoBehaviour {
     }
 
 
-    //private void SetUserInfo (Result)
+    public void FetchUserProfile ()
+    {
+        FB.API ("/me?fields=first_name", HttpMethod.GET, FetchUserName);
+        //FB.API ("/me/picture?type=square&height=" + user_pic_height + "&width=" + user_pic_width, HttpMethod.GET, DisplayUserPicture);
+        FB.API ("/me/picture?type=square&height=" + "200" + "&width=" + "200", HttpMethod.GET, FetchUserPicture);
+    }
+
+    // Changes the welcome message to include user name
+    void FetchUserName (IResult result)
+    {
+        if (result.Error == null)
+        {
+            UserName = result.ResultDictionary["first_name"].ToString ();
+            Debug.Log ("Fetched user name: " + UserName);
+        }
+        else
+        {
+            Debug.Log ("Couldn't get user name");
+            Debug.Log (result.Error);
+        }
+    }
+
+
+    // Displays the user profile picture in a login
+    void FetchUserPicture (IGraphResult result)
+    {
+        if (result.Error == null)
+        {
+            //Image profile_image = UserProfileImage.GetComponent<Image> ();
+            //RectTransform user_pic_rectt = UserProfileImage.GetComponent<RectTransform> ();
+            //float pic_height = user_pic_rectt.rect.height;
+            //float pic_width = user_pic_rectt.rect.width;
+
+            //UserPicture = Sprite.Create (result.Texture, new Rect (0, 0, pic_height, pic_width), new Vector2 ());
+            UserPicture = Sprite.Create (result.Texture, new Rect (0, 0, 200, 200), new Vector2 ());
+        }
+        else
+        {
+            Debug.Log ("Couldn't get user profile picture");
+            Debug.Log (result.Error);
+        }
+    }
 }

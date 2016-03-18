@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using Facebook.Unity;
 using System.Collections.Generic;
+using System.Collections;
 
 public class FBScript : MonoBehaviour
 {
@@ -37,14 +38,17 @@ public class FBScript : MonoBehaviour
         else
         {
             if (FB.IsLoggedIn)
+            {
                 Debug.Log ("Successful login");
+                FacebookManager.Instance.FetchUserProfile ();
+            }
             else
                 Debug.Log ("Failded login");
 
-            SetLoginMenu (FB.IsLoggedIn);
-
             // not cool... this whole login should be inside the manager
             FacebookManager.Instance.IsLoggedIn = FB.IsLoggedIn;
+
+            SetLoginMenu (FB.IsLoggedIn);
         }
     }
 
@@ -52,13 +56,21 @@ public class FBScript : MonoBehaviour
     void SetLoginMenu (bool isLoggedIn)
     {
         RectTransform user_pic_rectt = UserProfileImage.GetComponent<RectTransform> ();
-        double user_pic_height = user_pic_rectt.rect.height;
-        double user_pic_width = user_pic_rectt.rect.width;
-
+        //double user_pic_height = user_pic_rectt.rect.height;
+        //double user_pic_width = user_pic_rectt.rect.width;
+        Debug.Log ("Entered SetLoginMenu. IsLoggedIn: " + isLoggedIn);
         if (isLoggedIn)
         {
-            FB.API ("/me?fields=first_name", HttpMethod.GET, DisplayUserName);
-            FB.API ("/me/picture?type=square&height=" + user_pic_height + "&width=" + user_pic_width, HttpMethod.GET, DisplayUserPicture);
+            Debug.Log ("It is actually logged in"); 
+            if (FacebookManager.Instance.UserName == null)
+            {
+                StartCoroutine ("WaitForProfileName");
+            }
+            else {
+                Debug.Log ("Im about to change the welcome message");
+                Text welcome_message = WelcomeMessageText.GetComponent<Text> ();
+                welcome_message.text = "Welcome, " + FacebookManager.Instance.UserName + "!";
+            }
         }
 
         DialogLoggedOut.SetActive (!isLoggedIn);
@@ -66,38 +78,15 @@ public class FBScript : MonoBehaviour
     }
 
 
-    // Changes the welcome message to include user name
-    void DisplayUserName (IResult result)
+    // Makes the menu wait to the profile name to be fetched before trying to display it
+    IEnumerator WaitForProfileName ()
     {
-        if (result.Error == null)
+        Debug.Log ("Waiting to fetch info...");
+        while (FacebookManager.Instance.UserName == null)
         {
-            Text welcome_message = WelcomeMessageText.GetComponent<Text> ();
-            welcome_message.text = "How are you, " + result.ResultDictionary ["first_name"] + "?";
+            yield return null;
         }
-        else
-        {
-            Debug.Log ("Couldn't get user name");
-            Debug.Log (result.Error);
-        }
-    }
 
-    
-    // Displays the user profile picture in a login
-    void DisplayUserPicture (IGraphResult result)
-    {
-        if (result.Error == null)
-        {
-            Image profile_image = UserProfileImage.GetComponent<Image> ();
-            RectTransform user_pic_rectt = UserProfileImage.GetComponent<RectTransform> ();
-            float pic_height = user_pic_rectt.rect.height;
-            float pic_width = user_pic_rectt.rect.width;
-
-            profile_image.sprite = Sprite.Create (result.Texture, new Rect(0, 0, pic_height, pic_width), new Vector2 ());
-        }
-        else
-        {
-            Debug.Log ("Couldn't get user profile picture");
-            Debug.Log (result.Error);
-        }
+        SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
     }
 }
