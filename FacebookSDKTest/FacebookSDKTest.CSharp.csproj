@@ -63,7 +63,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\FBScript.cs" />
     <Compile Include="Assets\FacebookSDK\Examples\Scripts\ConsoleBase.cs" />
     <Compile Include="Assets\FacebookSDK\Examples\Scripts\LogView.cs" />
     <Compile Include="Assets\FacebookSDK\Examples\Scripts\MenuBase.cs" />
@@ -157,6 +156,8 @@
     <Compile Include="Assets\FacebookSDK\SDK\Scripts\Utils\IFacebookLogger.cs" />
     <Compile Include="Assets\FacebookSDK\SDK\Scripts\Utils\MiniJson.cs" />
     <Compile Include="Assets\FacebookSDK\SDK\Scripts\Utils\Utilities.cs" />
+    <Compile Include="Assets\Scripts\FBScript.cs" />
+    <Compile Include="Assets\Scripts\FacebookManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\FacebookSDK\SDK\Editor\android\DefaultAndroidManifest.xml" />

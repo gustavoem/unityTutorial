@@ -15,6 +15,8 @@ public class FBScript : MonoBehaviour
     void Awake ()
     {
         FB.Init (SetInit, OnHideUnity);
+
+        Debug.Log (FacebookManager.Instance.IsLoggedIn);
     }
 
 
