@@ -71,6 +71,15 @@ public class FBScript : MonoBehaviour
                 Text welcome_message = WelcomeMessageText.GetComponent<Text> ();
                 welcome_message.text = "Welcome, " + FacebookManager.Instance.UserName + "!";
             }
+
+            if (FacebookManager.Instance.UserPicture == null)
+            {
+                StartCoroutine ("WaitForProfilePicture");
+            }
+            else {
+                Image user_pic = UserProfileImage.GetComponent<Image> ();
+                user_pic.sprite = FacebookManager.Instance.UserPicture;
+            }
         }
 
         DialogLoggedOut.SetActive (!isLoggedIn);
@@ -83,6 +92,18 @@ public class FBScript : MonoBehaviour
     {
         Debug.Log ("Waiting to fetch info...");
         while (FacebookManager.Instance.UserName == null)
+        {
+            yield return null;
+        }
+
+        SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
+    }
+
+    // Makes the menu wait to the profile picture to be fetched before trying to display it
+    IEnumerator WaitForProfilePicture ()
+    {
+        Debug.Log ("Waiting to fetch info...");
+        while (FacebookManager.Instance.UserPicture == null)
         {
             yield return null;
         }
