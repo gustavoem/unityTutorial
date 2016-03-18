@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using Facebook.Unity;
 using System.Collections.Generic;
 
@@ -7,6 +8,7 @@ public class FBScript : MonoBehaviour
 
     public GameObject DialogLoggedIn;
     public GameObject DialogLoggedOut;
+    public GameObject WelcomeMessageText;
 
     // Happens before initialization
     void Awake ()
@@ -67,7 +69,29 @@ public class FBScript : MonoBehaviour
     // Controls UI logged ind and logged out UI
     void SetLoginMenu (bool isLoggedIn)
     {
-        DialogLoggedIn.SetActive (isLoggedIn);
+        if (isLoggedIn)
+        {
+            FB.API ("/me?fields=first_name", HttpMethod.GET, DisplayUserName);
+        }
+
         DialogLoggedOut.SetActive (!isLoggedIn);
+        DialogLoggedIn.SetActive (isLoggedIn);
+    }
+
+
+    // Callback to set username when there's a login
+    void DisplayUserName (IResult result)
+    {
+        Text welcome_message = WelcomeMessageText.GetComponent<Text> ();
+
+        if (result.Error == null)
+        {
+            welcome_message.text = "How are you, " + result.ResultDictionary ["first_name"] + "?";
+        }
+        else
+        {
+            Debug.Log ("Couldn't get user name");
+            Debug.Log (result.Error);
+        }
     }
 }
