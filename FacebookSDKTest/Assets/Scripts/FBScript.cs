@@ -14,32 +14,8 @@ public class FBScript : MonoBehaviour
     // Happens before initialization
     void Awake ()
     {
-        FB.Init (SetInit, OnHideUnity);
-
-        Debug.Log (FacebookManager.Instance.IsLoggedIn);
-    }
-
-
-    // Init of FB
-    private void SetInit ()
-    {
-        Debug.Log ("Started FB init");
-        if (FB.IsLoggedIn)
-            Debug.Log ("They already logged in");
-        else
-            Debug.Log ("They haven't logged in");
-
-        SetLoginMenu (FB.IsLoggedIn);
-    }
-
-
-    // When FB goes over your app (game is not showing)
-    private void OnHideUnity (bool isGameShown)
-    {
-        if (!isGameShown)
-            Time.timeScale = 0;
-        else
-            Time.timeScale = 1;
+        FacebookManager.Instance.InitFB ();
+        SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
     }
 
     public void FBLogin ()
@@ -66,6 +42,9 @@ public class FBScript : MonoBehaviour
                 Debug.Log ("Failded login");
 
             SetLoginMenu (FB.IsLoggedIn);
+
+            // not cool... this whole login should be inside the manager
+            FacebookManager.Instance.IsLoggedIn = FB.IsLoggedIn;
         }
     }
 

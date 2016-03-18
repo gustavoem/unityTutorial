@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Facebook.Unity;
 using System.Collections;
 
 // This code is inspired in the following tutorial:
@@ -40,7 +41,43 @@ public class FacebookManager : MonoBehaviour {
     {
         // Not very sure of how this works...
         Debug.Log ("FBManager Awake is being called");
+        DontDestroyOnLoad (this.gameObject);
         _instance = this;
-        IsLoggedIn = true;
     }
+
+
+    // Initiates Facebook API
+    public void InitFB ()
+    {
+        if (!FB.IsInitialized)
+            FB.Init (SetInit, OnHideUnity);
+        else
+            IsLoggedIn = FB.IsLoggedIn;
+    }
+
+
+    // Init of FB
+    private void SetInit ()
+    {
+        Debug.Log ("Started FB init");
+        if (FB.IsLoggedIn)
+            Debug.Log ("They already logged in");
+        else
+            Debug.Log ("They haven't logged in");
+
+        IsLoggedIn = FB.IsLoggedIn;
+    }
+
+
+    // When FB goes over your app (game is not showing)
+    private void OnHideUnity (bool isGameShown)
+    {
+        if (!isGameShown)
+            Time.timeScale = 0;
+        else
+            Time.timeScale = 1;
+    }
+
+
+    //private void SetUserInfo (Result)
 }
