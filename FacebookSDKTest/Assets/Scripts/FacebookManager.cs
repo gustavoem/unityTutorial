@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using Facebook.Unity;
-using System.Collections;
+using System.Collections.Generic;
 
 // This code is inspired in the following tutorial:
 // http://greyzoned.com/tutorials/facebook-sdk-7-4-0-in-unity-5-3-tutorial-singletons-inviting-sharing/
@@ -31,6 +31,9 @@ public class FacebookManager : MonoBehaviour {
 
     // Stores if FB is logged in or not. Should be the same as FB.IsLoggedIn
     public bool IsLoggedIn { get; set; }
+
+    // It's true if we are in the middle of a authentication
+    public bool IsLogginIn = false;
 
     // Stores the user name
     public string UserName { get; set; }
@@ -126,5 +129,39 @@ public class FacebookManager : MonoBehaviour {
             Debug.Log ("Couldn't get user profile picture");
             Debug.Log (result.Error);
         }
+    }
+
+
+    public void Login ()
+    {
+        IsLogginIn = true;
+
+        List<string> permissions = new List<string> ();
+        permissions.Add ("public_profile");
+        FB.LogInWithReadPermissions (permissions, AuthCallBack);
+    }
+
+
+    // This is run after logged in
+    void AuthCallBack (IResult result)
+    {
+        if (result.Error != null)
+        {
+            Debug.Log ("Ops, we've got an error at the loggin.");
+            Debug.Log (result.Error);
+        }
+        else
+        {
+            if (FB.IsLoggedIn)
+            {
+                Debug.Log ("Successful login");
+                FetchUserProfile ();
+            }
+            else
+                Debug.Log ("Failded login");
+
+            IsLoggedIn = FB.IsLoggedIn;
+        }
+        IsLogginIn = false;
     }
 }

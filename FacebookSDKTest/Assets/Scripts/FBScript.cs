@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using Facebook.Unity;
-using System.Collections.Generic;
 using System.Collections;
 
 public class FBScript : MonoBehaviour
@@ -19,45 +17,24 @@ public class FBScript : MonoBehaviour
         SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
     }
 
+    // Make the login when the login button is pressed
     public void FBLogin ()
     {
-        List<string> permissions = new List<string> ();
-        permissions.Add ("public_profile");
-        FB.LogInWithReadPermissions (permissions, AuthCallBack);
-    }
+        FacebookManager.Instance.Login ();
 
-
-    // This is run after logged in
-    void AuthCallBack (IResult result)
-    {
-        if (result.Error != null)
-        {
-            Debug.Log ("Ops, we've got an error at the loggin.");
-            Debug.Log (result.Error);
-        }
+        if (FacebookManager.Instance.IsLogginIn)
+            StartCoroutine ("WaitForLogin");
         else
-        {
-            if (FB.IsLoggedIn)
-            {
-                Debug.Log ("Successful login");
-                FacebookManager.Instance.FetchUserProfile ();
-            }
-            else
-                Debug.Log ("Failded login");
-
-            // not cool... this whole login should be inside the manager
-            FacebookManager.Instance.IsLoggedIn = FB.IsLoggedIn;
-
-            SetLoginMenu (FB.IsLoggedIn);
-        }
+            SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
     }
+    
 
     // Controls UI logged ind and logged out UI
     void SetLoginMenu (bool isLoggedIn)
     {
         RectTransform user_pic_rectt = UserProfileImage.GetComponent<RectTransform> ();
-        //double user_pic_height = user_pic_rectt.rect.height;
-        //double user_pic_width = user_pic_rectt.rect.width;
+        float user_pic_height = user_pic_rectt.rect.height;
+        float user_pic_width = user_pic_rectt.rect.width;
         Debug.Log ("Entered SetLoginMenu. IsLoggedIn: " + isLoggedIn);
         if (isLoggedIn)
         {
@@ -104,6 +81,18 @@ public class FBScript : MonoBehaviour
     {
         Debug.Log ("Waiting to fetch info...");
         while (FacebookManager.Instance.UserPicture == null)
+        {
+            yield return null;
+        }
+
+        SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
+    }
+
+    // Makes the menu wait the manager to finish login
+    IEnumerator WaitForLogin ()
+    {
+        Debug.Log ("Waiting to login...");
+        while (FacebookManager.Instance.IsLogginIn)
         {
             yield return null;
         }
