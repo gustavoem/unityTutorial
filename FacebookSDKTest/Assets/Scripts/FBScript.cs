@@ -105,6 +105,18 @@ public class FBScript : MonoBehaviour
         SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
     }
 
+    // Makes the menu wait the manager to finish login
+    IEnumerator WaitForScores ()
+    {
+        Debug.Log ("Waiting to login...");
+        while (FacebookManager.Instance.IsLogginIn)
+        {
+            yield return null;
+        }
+
+        SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
+    }
+
     // Set user score
     public void SetScore ()
     {
@@ -115,7 +127,6 @@ public class FBScript : MonoBehaviour
     public void QueryScores ()
     {
         FacebookManager.Instance.GetScores ();
-        ScoresText.text = FacebookManager.Instance.scores;
-        Debug.Log (FacebookManager.Instance.scores);
+        
     }
 }

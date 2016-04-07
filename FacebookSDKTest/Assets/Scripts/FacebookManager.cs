@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using Facebook.Unity;
 using System.Collections.Generic;
+using System.Collections;
+using Facebook.MiniJSON;
 
 // This code is inspired in the following tutorial:
 // http://greyzoned.com/tutorials/facebook-sdk-7-4-0-in-unity-5-3-tutorial-singletons-inviting-sharing/
@@ -35,6 +37,9 @@ public class FacebookManager : MonoBehaviour {
     // It's true if we are in the middle of a authentication
     public bool IsLogginIn = false;
 
+    // It's true whenever there's a method in this module that yielded because of a server query
+    public bool IsQueryingFB = false;
+
     // Stores the user name
     public string UserName { get; set; }
 
@@ -42,7 +47,7 @@ public class FacebookManager : MonoBehaviour {
     public Sprite UserPicture { get; set; }
 
     // 
-    public string scores { get; set; }
+    public Dictionary<string, double> scores_list { get; set; }
 
     // Code run when starting the script component
     void Awake ()
@@ -92,6 +97,7 @@ public class FacebookManager : MonoBehaviour {
 
     public void FetchUserProfile ()
     {
+        IsQueryingFB = true;
         FB.API ("/me?fields=first_name", HttpMethod.GET, FetchUserName);
         //FB.API ("/me/picture?type=square&height=" + user_pic_height + "&width=" + user_pic_width, HttpMethod.GET, DisplayUserPicture);
         FB.API ("/me/picture?type=square&height=" + "200" + "&width=" + "200", HttpMethod.GET, FetchUserPicture);
@@ -110,6 +116,7 @@ public class FacebookManager : MonoBehaviour {
             Debug.Log ("Couldn't get user name");
             Debug.Log (result.Error);
         }
+        IsQueryingFB = false;
     }
 
 
@@ -177,6 +184,20 @@ public class FacebookManager : MonoBehaviour {
 
     private void ScoresCallback (IResult result)
     {
-        scores = result.RawResult;
+        scores_list = new Dictionary<string, double> ();
+
+        Dictionary<string, object> result_dict = Json.Deserialize (result.RawResult) as Dictionary<string, object>;
+        List<object> data = result_dict["data"] as List<object>;
+        object[] array_data = data.ToArray ();
+        foreach (var item in array_data)
+        {
+            Dictionary<string, object> user_dictionary = item as Dictionary<string, object>;
+            string name = ((Dictionary<string, object>) user_dictionary["user"])["name"].ToString ();
+            double score = (double) user_dictionary["score"];
+            //Debug.Log ("Name: " + name);
+            //Debug.Log ("Score: " + score);
+
+            scores_list.Add (name, score);
+        }
     }
 }
