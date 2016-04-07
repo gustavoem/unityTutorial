@@ -46,7 +46,7 @@ public class FBScript : MonoBehaviour
             Debug.Log ("It is actually logged in"); 
             if (FacebookManager.Instance.IsQueryingFB ())
             {
-                StartCoroutine ("WaitForAPIData");
+                StartCoroutine ("WaitForAPIData", "name");
             }
             else {
                 Debug.Log ("Im about to change the welcome message");
@@ -56,7 +56,7 @@ public class FBScript : MonoBehaviour
 
             if (FacebookManager.Instance.IsQueryingFB ())
             {
-                StartCoroutine ("WaitForAPIData");
+                StartCoroutine ("WaitForAPIData", "picture");
             }
             else {
                 Image user_pic = UserProfileImage.GetComponent<Image> ();
@@ -70,7 +70,7 @@ public class FBScript : MonoBehaviour
 
 
     // Makes the menu wait to the profile name to be fetched before trying to display it
-    IEnumerator WaitForAPIData ()
+    IEnumerator WaitForAPIData (string reason)
     {
         Debug.Log ("Waiting to fetch info...");
         while (FacebookManager.Instance.IsQueryingFB ())
@@ -78,7 +78,14 @@ public class FBScript : MonoBehaviour
             yield return null;
         }
 
-        SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
+        Debug.Log (reason);
+
+        if (reason == "name" ||
+            reason == "picture")
+            SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
+
+        if (reason == "score_get")
+            FillScoresText ();
     }
 
     // Makes the menu wait the manager to finish login
@@ -102,7 +109,18 @@ public class FBScript : MonoBehaviour
     // Get user friends scores
     public void QueryScores ()
     {
-        FacebookManager.Instance.GetScores ();
-        
+        FacebookManager.Instance.FetchScores ();
+
+        if (FacebookManager.Instance.IsQueryingFB ())
+            StartCoroutine ("WaitForAPIData", "score_get");
+        else
+            FillScoresText ();          
+    }
+
+    void FillScoresText ()
+    {
+        ScoresText.text = "";
+        foreach (var user in FacebookManager.Instance.scores_list)
+            ScoresText.text = user.Key + ": " + user.Value + "\n" + ScoresText.text;
     }
 }

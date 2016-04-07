@@ -186,7 +186,7 @@ public class FacebookManager : MonoBehaviour {
     }
 
     // Get scores in a string
-    public void GetScores ()
+    public void FetchScores ()
     {
         CurrentQueries++;
         FB.API ("/app/scores", HttpMethod.GET, ScoresCallback);
@@ -204,9 +204,6 @@ public class FacebookManager : MonoBehaviour {
             Dictionary<string, object> user_dictionary = item as Dictionary<string, object>;
             string name = ((Dictionary<string, object>) user_dictionary["user"])["name"].ToString ();
             double score = double.Parse (user_dictionary["score"].ToString ());
-            Debug.Log ("Name: " + name);
-            Debug.Log ("Score: " + score);
-
             scores_list.Add (name, score);
         }
         CurrentQueries--;
