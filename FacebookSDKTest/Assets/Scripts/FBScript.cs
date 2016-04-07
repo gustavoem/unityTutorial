@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using System.Collections.Generic;
-
-using Facebook.Unity;
 
 public class FBScript : MonoBehaviour
 {
@@ -12,8 +9,8 @@ public class FBScript : MonoBehaviour
     public GameObject DialogLoggedOut;
     public GameObject WelcomeMessageText;
     public GameObject UserProfileImage;
-
     public Text ScoresText;
+    public GameObject LoadingPanel;
 
     // Happens before initialization
     void Awake ()
@@ -72,6 +69,7 @@ public class FBScript : MonoBehaviour
     // Makes the menu wait to the profile name to be fetched before trying to display it
     IEnumerator WaitForAPIData (string reason)
     {
+        LoadingPanel.SetActive (true);
         Debug.Log ("Waiting to fetch info...");
         while (FacebookManager.Instance.IsQueryingFB ())
         {
@@ -86,11 +84,13 @@ public class FBScript : MonoBehaviour
 
         if (reason == "score_get")
             FillScoresText ();
+        LoadingPanel.SetActive (false);
     }
 
     // Makes the menu wait the manager to finish login
     IEnumerator WaitForLogin ()
     {
+        LoadingPanel.SetActive (true);
         Debug.Log ("Waiting to login...");
         while (FacebookManager.Instance.IsLogginIn)
         {
@@ -98,6 +98,7 @@ public class FBScript : MonoBehaviour
         }
 
         SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
+        LoadingPanel.SetActive (false);
     }
 
     // Set user score
