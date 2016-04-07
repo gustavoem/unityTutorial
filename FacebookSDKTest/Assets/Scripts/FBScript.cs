@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
+
+using Facebook.Unity;
 
 public class FBScript : MonoBehaviour
 {
@@ -9,6 +12,8 @@ public class FBScript : MonoBehaviour
     public GameObject DialogLoggedOut;
     public GameObject WelcomeMessageText;
     public GameObject UserProfileImage;
+
+    public Text ScoresText;
 
     // Happens before initialization
     void Awake ()
@@ -98,5 +103,19 @@ public class FBScript : MonoBehaviour
         }
 
         SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
+    }
+
+    // Set user score
+    public void SetScore ()
+    {
+    }
+
+
+    // Get user friends scores
+    public void QueryScores ()
+    {
+        FacebookManager.Instance.GetScores ();
+        ScoresText.text = FacebookManager.Instance.scores;
+        Debug.Log (FacebookManager.Instance.scores);
     }
 }

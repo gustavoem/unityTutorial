@@ -41,6 +41,8 @@ public class FacebookManager : MonoBehaviour {
     // Stores the user profile picture
     public Sprite UserPicture { get; set; }
 
+    // 
+    public string scores { get; set; }
 
     // Code run when starting the script component
     void Awake ()
@@ -138,6 +140,8 @@ public class FacebookManager : MonoBehaviour {
 
         List<string> permissions = new List<string> ();
         permissions.Add ("public_profile");
+        permissions.Add ("user_games_activity");
+        permissions.Add ("user_friends");
         FB.LogInWithReadPermissions (permissions, AuthCallBack);
     }
 
@@ -163,5 +167,16 @@ public class FacebookManager : MonoBehaviour {
             IsLoggedIn = FB.IsLoggedIn;
         }
         IsLogginIn = false;
+    }
+
+    // Get scores in a string
+    public void GetScores ()
+    {
+        FB.API ("/app/scores", HttpMethod.GET, ScoresCallback);
+    }
+
+    private void ScoresCallback (IResult result)
+    {
+        scores = result.RawResult;
     }
 }
