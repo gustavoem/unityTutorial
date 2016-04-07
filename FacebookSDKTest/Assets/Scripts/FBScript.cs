@@ -44,9 +44,9 @@ public class FBScript : MonoBehaviour
         if (isLoggedIn)
         {
             Debug.Log ("It is actually logged in"); 
-            if (FacebookManager.Instance.UserName == null)
+            if (FacebookManager.Instance.IsQueryingFB ())
             {
-                StartCoroutine ("WaitForProfileName");
+                StartCoroutine ("WaitForAPIData");
             }
             else {
                 Debug.Log ("Im about to change the welcome message");
@@ -54,9 +54,9 @@ public class FBScript : MonoBehaviour
                 welcome_message.text = "Welcome, " + FacebookManager.Instance.UserName + "!";
             }
 
-            if (FacebookManager.Instance.UserPicture == null)
+            if (FacebookManager.Instance.IsQueryingFB ())
             {
-                StartCoroutine ("WaitForProfilePicture");
+                StartCoroutine ("WaitForAPIData");
             }
             else {
                 Image user_pic = UserProfileImage.GetComponent<Image> ();
@@ -70,22 +70,10 @@ public class FBScript : MonoBehaviour
 
 
     // Makes the menu wait to the profile name to be fetched before trying to display it
-    IEnumerator WaitForProfileName ()
+    IEnumerator WaitForAPIData ()
     {
         Debug.Log ("Waiting to fetch info...");
-        while (FacebookManager.Instance.UserName == null)
-        {
-            yield return null;
-        }
-
-        SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
-    }
-
-    // Makes the menu wait to the profile picture to be fetched before trying to display it
-    IEnumerator WaitForProfilePicture ()
-    {
-        Debug.Log ("Waiting to fetch info...");
-        while (FacebookManager.Instance.UserPicture == null)
+        while (FacebookManager.Instance.IsQueryingFB ())
         {
             yield return null;
         }
@@ -95,18 +83,6 @@ public class FBScript : MonoBehaviour
 
     // Makes the menu wait the manager to finish login
     IEnumerator WaitForLogin ()
-    {
-        Debug.Log ("Waiting to login...");
-        while (FacebookManager.Instance.IsLogginIn)
-        {
-            yield return null;
-        }
-
-        SetLoginMenu (FacebookManager.Instance.IsLoggedIn);
-    }
-
-    // Makes the menu wait the manager to finish login
-    IEnumerator WaitForScores ()
     {
         Debug.Log ("Waiting to login...");
         while (FacebookManager.Instance.IsLogginIn)

@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using Facebook.Unity;
 using System.Collections.Generic;
-using System.Collections;
 using Facebook.MiniJSON;
 
 // This code is inspired in the following tutorial:
@@ -37,8 +36,8 @@ public class FacebookManager : MonoBehaviour {
     // It's true if we are in the middle of a authentication
     public bool IsLogginIn = false;
 
-    // It's true whenever there's a method in this module that yielded because of a server query
-    public bool IsQueryingFB = false;
+    // Counts the number of queries currently being fetched
+    public int CurrentQueries = 0;
 
     // Stores the user name
     public string UserName { get; set; }
@@ -46,8 +45,9 @@ public class FacebookManager : MonoBehaviour {
     // Stores the user profile picture
     public Sprite UserPicture { get; set; }
 
-    // 
+    // Stores the list of scores
     public Dictionary<string, double> scores_list { get; set; }
+
 
     // Code run when starting the script component
     void Awake ()
@@ -56,6 +56,13 @@ public class FacebookManager : MonoBehaviour {
         Debug.Log ("FBManager Awake is being called");
         DontDestroyOnLoad (this.gameObject);
         _instance = this;
+    }
+
+
+    // Returns true if there's data being fetched
+    public bool IsQueryingFB ()
+    {
+        return CurrentQueries > 0;
     }
 
 
@@ -97,9 +104,10 @@ public class FacebookManager : MonoBehaviour {
 
     public void FetchUserProfile ()
     {
-        IsQueryingFB = true;
+        CurrentQueries++;
         FB.API ("/me?fields=first_name", HttpMethod.GET, FetchUserName);
         //FB.API ("/me/picture?type=square&height=" + user_pic_height + "&width=" + user_pic_width, HttpMethod.GET, DisplayUserPicture);
+        CurrentQueries++;
         FB.API ("/me/picture?type=square&height=" + "200" + "&width=" + "200", HttpMethod.GET, FetchUserPicture);
     }
 
@@ -116,7 +124,7 @@ public class FacebookManager : MonoBehaviour {
             Debug.Log ("Couldn't get user name");
             Debug.Log (result.Error);
         }
-        IsQueryingFB = false;
+        CurrentQueries--;
     }
 
 
@@ -138,6 +146,7 @@ public class FacebookManager : MonoBehaviour {
             Debug.Log ("Couldn't get user profile picture");
             Debug.Log (result.Error);
         }
+        CurrentQueries--;
     }
 
 
@@ -179,6 +188,7 @@ public class FacebookManager : MonoBehaviour {
     // Get scores in a string
     public void GetScores ()
     {
+        CurrentQueries++;
         FB.API ("/app/scores", HttpMethod.GET, ScoresCallback);
     }
 
@@ -193,11 +203,12 @@ public class FacebookManager : MonoBehaviour {
         {
             Dictionary<string, object> user_dictionary = item as Dictionary<string, object>;
             string name = ((Dictionary<string, object>) user_dictionary["user"])["name"].ToString ();
-            double score = (double) user_dictionary["score"];
-            //Debug.Log ("Name: " + name);
-            //Debug.Log ("Score: " + score);
+            double score = double.Parse (user_dictionary["score"].ToString ());
+            Debug.Log ("Name: " + name);
+            Debug.Log ("Score: " + score);
 
             scores_list.Add (name, score);
         }
+        CurrentQueries--;
     }
 }
